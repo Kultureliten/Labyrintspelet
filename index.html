@@ -1,108 +1,114 @@
 <!DOCTYPE html>
 <html lang="sv">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Labyrintspel</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 0;
-            padding: 0;
-            background-color: #f2f2f2;
-        }
-        .content {
-            padding: 20px;
-            background-color: white;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            margin: 50px auto;
-            width: 80%;
-            max-width: 600px;
-        }
-        h1 {
-            color: #333;
-        }
-        button {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            padding: 15px 32px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 16px;
-            margin: 10px;
-            cursor: pointer;
-            border-radius: 5px;
-        }
-        button:hover {
-            background-color: #45a049;
-        }
-        .hidden {
-            display: none;
-        }
-        .game-over, .game-won {
-            text-align: center;
-            font-size: 18px;
-            color: #333;
-            margin-top: 20px;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Labyrintspelet</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+      background-color: #eef;
+      transition: background-color 0.5s;
+    }
+    #game {
+      padding: 2rem;
+    }
+    button {
+      padding: 1rem 2rem;
+      margin: 1rem;
+      font-size: 1.2rem;
+      cursor: pointer;
+      border-radius: 8px;
+      border: none;
+      background-color: #0077cc;
+      color: white;
+      transition: background-color 0.3s;
+    }
+    button:hover {
+      background-color: #005fa3;
+    }
+    #message {
+      font-size: 1.5rem;
+      margin-top: 2rem;
+    }
+    .hidden {
+      display: none;
+    }
+  </style>
 </head>
 <body>
+  <div id="game">
+    <h1>Labyrintspelet</h1>
+    <p>Välj väg:</p>
+    <button onclick="makeChoice('Vänster')">Vänster</button>
+    <button onclick="makeChoice('Höger')">Höger</button>
+    <div id="message"></div>
+    <p id="attempts">Försök: 0</p>
+  </div>
 
-<div class="content">
-    <h1>Välkommen till Labyrintspelet!</h1>
-    <p id="question">Du står vid en vägskäl. Välj vänster eller höger.</p>
-    <button id="left">Vänster</button>
-    <button id="right">Höger</button>
-    <div class="game-over hidden">
-        <h2>Game Over</h2>
-        <button onclick="startGame()">Börja om</button>
-    </div>
-    <div class="game-won hidden">
-        <h2>Grattis, du vann!</h2>
-        <button onclick="startGame()">Börja om</button>
-    </div>
-</div>
+  <div id="gameover" class="hidden">
+    <h1>💀 Game Over</h1>
+    <p>Du valde fel väg. Försök igen!</p>
+    <button onclick="restartGame()">Börja om</button>
+  </div>
 
-<script>
+  <div id="win" class="hidden">
+    <h1>🌞 Du hittade solen!</h1>
+    <p>Tack för att du spelat <strong>"En återkopplande spadag"</strong></p>
+    <p id="finalAttempts"></p>
+  </div>
+
+  <script>
+    const correctPath = ["Vänster", "Vänster", "Vänster", "Höger", "Vänster", "Höger", "Vänster", "Höger", "Höger"];
+    let playerPath = [];
     let attempts = 0;
 
-    // Start game function
-    function startGame() {
-        attempts++;
-        document.querySelector('.game-over').classList.add('hidden');
-        document.querySelector('.game-won').classList.add('hidden');
-        document.getElementById('question').innerText = 'Du står vid en vägskäl. Välj vänster eller höger.';
-        document.getElementById('left').disabled = false;
-        document.getElementById('right').disabled = false;
-    }
-
-    // Path function
-    function makeMove(choice) {
-        if (choice === 'left') {
-            document.getElementById('question').innerText = 'Du gick vänster. Välj vänster eller höger.';
-            document.getElementById('left').disabled = false;
-            document.getElementById('right').disabled = false;
+    function makeChoice(choice) {
+      const currentStep = playerPath.length;
+      if (choice === correctPath[currentStep]) {
+        playerPath.push(choice);
+        updateBackground();
+        if (playerPath.length === correctPath.length) {
+          showWin();
         } else {
-            document.getElementById('question').innerText = 'Du gick höger och dog! Försök igen!';
-            document.getElementById('left').disabled = true;
-            document.getElementById('right').disabled = true;
-            document.querySelector('.game-over').classList.remove('hidden');
+          document.getElementById('message').innerText = `Du valde ${choice}. Fortsätt!`;
         }
+      } else {
+        showGameOver();
+      }
     }
 
-    // Event listeners for buttons
-    document.getElementById('left').addEventListener('click', function() {
-        makeMove('left');
-    });
+    function showGameOver() {
+      attempts++;
+      document.getElementById('game').classList.add('hidden');
+      document.getElementById('gameover').classList.remove('hidden');
+    }
 
-    document.getElementById('right').addEventListener('click', function() {
-        makeMove('right');
-    });
-</script>
+    function restartGame() {
+      playerPath = [];
+      document.body.style.backgroundColor = '#eef';
+      document.getElementById('message').innerText = '';
+      document.getElementById('gameover').classList.add('hidden');
+      document.getElementById('win').classList.add('hidden');
+      document.getElementById('game').classList.remove('hidden');
+      document.getElementById('attempts').innerText = `Försök: ${attempts}`;
+    }
 
+    function showWin() {
+      attempts++;
+      document.getElementById('finalAttempts').innerText = `Det tog dig ${attempts} försök.`;
+      document.getElementById('game').classList.add('hidden');
+      document.getElementById('win').classList.remove('hidden');
+    }
+
+    function updateBackground() {
+      const colors = ["#eef", "#e3f2fd", "#fff3e0", "#e8f5e9", "#fce4ec", "#ede7f6", "#f3e5f5", "#e0f7fa", "#ffebee"];
+      const index = playerPath.length % colors.length;
+      document.body.style.backgroundColor = colors[index];
+    }
+  </script>
 </body>
 </html>
