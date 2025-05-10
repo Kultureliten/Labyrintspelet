@@ -13,7 +13,7 @@
       background-color: #eef;
       transition: background-color 0.5s;
     }
-    #game {
+    #game, #gameover, #win {
       padding: 2rem;
     }
     button {
@@ -43,8 +43,10 @@
   <div id="game">
     <h1>Labyrintspelet</h1>
     <p>Välj väg:</p>
-    <button onclick="makeChoice('Vänster')">Vänster</button>
-    <button onclick="makeChoice('Höger')">Höger</button>
+    <div id="buttons">
+      <button onclick="makeChoice('Vänster')">Vänster</button>
+      <button onclick="makeChoice('Höger')">Höger</button>
+    </div>
     <div id="message"></div>
     <p id="attempts">Försök: 0</p>
   </div>
@@ -63,18 +65,19 @@
 
   <script>
     const correctPath = ["Vänster", "Vänster", "Vänster", "Höger", "Vänster", "Höger", "Vänster", "Höger", "Höger"];
+    const colors = ["#eef", "#e3f2fd", "#fff3e0", "#e8f5e9", "#fce4ec", "#ede7f6", "#f3e5f5", "#e0f7fa", "#ffebee", "#fff9c4"];
     let playerPath = [];
     let attempts = 0;
 
     function makeChoice(choice) {
-      const currentStep = playerPath.length;
-      if (choice === correctPath[currentStep]) {
+      const step = playerPath.length;
+      if (choice === correctPath[step]) {
         playerPath.push(choice);
-        updateBackground();
+        document.body.style.backgroundColor = colors[(step + 1) % colors.length];
+        document.getElementById('message').innerText = `Du valde ${choice}. Fortsätt!`;
+
         if (playerPath.length === correctPath.length) {
           showWin();
-        } else {
-          document.getElementById('message').innerText = `Du valde ${choice}. Fortsätt!`;
         }
       } else {
         showGameOver();
@@ -85,16 +88,17 @@
       attempts++;
       document.getElementById('game').classList.add('hidden');
       document.getElementById('gameover').classList.remove('hidden');
+      document.body.style.backgroundColor = "#111";
     }
 
     function restartGame() {
       playerPath = [];
-      document.body.style.backgroundColor = '#eef';
       document.getElementById('message').innerText = '';
       document.getElementById('gameover').classList.add('hidden');
       document.getElementById('win').classList.add('hidden');
       document.getElementById('game').classList.remove('hidden');
       document.getElementById('attempts').innerText = `Försök: ${attempts}`;
+      document.body.style.backgroundColor = colors[0];
     }
 
     function showWin() {
@@ -102,12 +106,7 @@
       document.getElementById('finalAttempts').innerText = `Det tog dig ${attempts} försök.`;
       document.getElementById('game').classList.add('hidden');
       document.getElementById('win').classList.remove('hidden');
-    }
-
-    function updateBackground() {
-      const colors = ["#eef", "#e3f2fd", "#fff3e0", "#e8f5e9", "#fce4ec", "#ede7f6", "#f3e5f5", "#e0f7fa", "#ffebee"];
-      const index = playerPath.length % colors.length;
-      document.body.style.backgroundColor = colors[index];
+      document.body.style.backgroundColor = "#ffe082";
     }
   </script>
 </body>
